@@ -747,3 +747,7 @@
 			>;
 	};
 };
+
+&icssg0_iep0 {
+	ti,expose-phc;
+};
