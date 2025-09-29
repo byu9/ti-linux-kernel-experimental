@@ -794,6 +794,23 @@ static int icss_iep_probe(struct platform_device *pdev)
 	dev_set_drvdata(dev, iep);
 	icss_iep_disable(iep);
 
+	if (device_property_read_bool(&pdev->dev, "ti,expose-phc")) {
+		dev_info(&pdev->dev, "Exposing IEP as PHC");
+		if (icss_iep_init(iep, NULL, NULL, 0)) {
+			dev_err(&pdev->dev, "Failed to initialize IEP");
+			return -EINVAL;
+		}
+		dev_info(&pdev->dev, "Successful exposing IEP as PHC");
+	}
+
+	return 0;
+}
+
+static int icss_iep_remove(struct platform_device *pdev)
+{
+	struct icss_iep *iep = platform_get_drvdata(pdev);
+	icss_iep_exit(iep);
+
 	return 0;
 }
 
@@ -893,6 +910,7 @@ static struct platform_driver icss_iep_driver = {
 		.of_match_table = icss_iep_of_match,
 	},
 	.probe = icss_iep_probe,
+	.remove = icss_iep_remove,
 };
 module_platform_driver(icss_iep_driver);
 
